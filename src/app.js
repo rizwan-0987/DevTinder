@@ -2,14 +2,24 @@ import express from 'express'
 
 const app = express();
 
-app.get("/",(req, res) => {
-    res.send("helllo from server")
+app.use("/", (req, res,next) => {
+    console.log("working on /user")
+    next();
 })
-app.get("/about",(req, res) => {
-    res.send("This is about page")
+app.get("/user",(req, res) => {
+    res.send({
+        name: "Rizwan",
+        age : "24"
+    })
 })
-app.get("/bye",(req, res) => {
-    res.send("bye bye")
+app.post("/user",(req, res) => {
+    res.send("user added in db")
+})
+app.put("/user",(req, res) => {
+    res.send("user updated in db")
+})
+app.delete("/user", (req, res) => {
+    res.send("user deleted")
 })
 
 
