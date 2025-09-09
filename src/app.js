@@ -6,10 +6,20 @@ app.use("/", (req, res,next) => {
     console.log("working on /user")
     next();
 })
-app.get("/user",(req, res) => {
+app.get(`/user`, (req, res) => {
+    console.log(req.query) 
+
     res.send({
         name: "Rizwan",
         age : "24"
+    })
+})
+app.get("/user/:id/:age/:address", (req, res) => {
+    console.log(req.params)
+
+    res.send({
+        name: "Rizwan",
+        age: "24"
     })
 })
 app.post("/user",(req, res) => {
