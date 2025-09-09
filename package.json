@@ -1,0 +1,21 @@
+{
+  "name": "devtinder",
+  "version": "1.0.0",
+  "description": "tinder for devs",
+  "keywords": [
+    "nodejs",
+    "javascript"
+  ],
+  "license": "ISC",
+  "author": "Rizwan Ahmad",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev":"nodemon src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10"
+  }
+}
