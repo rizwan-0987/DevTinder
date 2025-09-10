@@ -79,17 +79,34 @@ const app = express();
 
 
 ///Auth handler for user and admin
-import { authAdmin, authuser } from './middlewear/auth.js';
+// import { authAdmin, authuser } from './middlewear/auth.js';
 
-app.get("/admin/getAllData",authAdmin, (req, res) => {
-    res.send("Here is all data for admin")
+// app.get("/admin/getAllData",authAdmin, (req, res) => {
+//     res.send("Here is all data for admin")
+// })
+
+// app.get("/user/data", authuser, (req, res) => {
+//     res.send("username : rizwan")
+// })
+// app.get("/user/login", (req, res) => {
+//     res.send("you are getting login")
+// })
+
+
+
+/////Wild Card Error handling
+app.get("/user", (req, res) => {
+    try {
+        throw new Error()
+        
+    } catch (error) {
+        res.status(401).send("Catch: Something went Wrong ")
+    }
+})
+ 
+app.use("/", (err, req, res, next) => {
+    res.status(401).send("something went wrong")
 })
 
-app.get("/user/data", authuser, (req, res) => {
-    res.send("username : rizwan")
-})
-app.get("/user/login", (req, res) => {
-    res.send("you are getting login")
-})
 
 app.listen(7777,()=>console.log("Server is running on port 7777"))
