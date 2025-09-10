@@ -108,9 +108,30 @@ const app = express();
 //     res.status(401).send("something went wrong")
 // })
 
+app.post("/signup", async(req, res) => {
+    const userObj = {
+        firstName: "Haad",
+        lastName: "Ahmad",
+        emailId: "haad@gmail.com",
+        password: "12345678",
+        age: 21,
+        gender:"male"
+    }
+    const user = new User(userObj)
+    try {
+        await user.save()
+            res.status(201).send("user registered")
+    } catch (error) {
+        res.status(401).send("something went wrong while registering user")
+    }
+   
+  
+})
+
 
 ///
 import { connectdb } from './config/database.js';
+import { User } from './models/user.js';
 
 connectdb()
     .then(() => {
