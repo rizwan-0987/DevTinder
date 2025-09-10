@@ -34,34 +34,48 @@ const app = express();
 
 ////Multiple route handlers
 
-app.use("/user", (req, res, next) => {
-    console.log("route handler 1")
+// app.use("/user", (req, res, next) => {
+//     console.log("route handler 1")
+//     next();
+
+//     // res.send("route handler 1")
+// },
+//     (req, res, next) => {
+//         console.log("route handler 2")
+//         // res.send("route handler 2")
+//         next();
+//     },
+//    [ (req, res, next) => {
+//         console.log("route handler 3")
+//         // res.send("route handler 3")
+//         next()
+//     },
+//     (req, res, next) => {
+//         console.log("route handler 4")
+//         // res.send("route handler 4")
+//         next()
+//     }],
+//     (req, res, next) => {
+//         console.log("route handler 5")
+//         // next()
+
+//         res.send("route handler 5")
+//     },
+// )
+
+////multiple routes with same path and / middlewear
+
+app.use("/",(req, res ,next)=> {
+    console.log("handling your request....")
     next();
-
-    // res.send("route handler 1")
-},
-    (req, res, next) => {
-        console.log("route handler 2")
-        // res.send("route handler 2")
-        next();
-    },
-   [ (req, res, next) => {
-        console.log("route handler 3")
-        // res.send("route handler 3")
-        next()
-    },
-    (req, res, next) => {
-        console.log("route handler 4")
-        // res.send("route handler 4")
-        next()
-    }],
-    (req, res, next) => {
-        console.log("route handler 5")
-        // next()
-
-        res.send("route handler 5")
-    },
-)
+})
+app.get("/user", (req, res, next) => {
+    // res.send("route handle 1")
+    next();
+})
+app.get("/user", (req, res, next) => {
+    res.send("route handle 2")
+})
 
 
 app.listen(7777,()=>console.log("Server is running on port 7777"))
