@@ -95,18 +95,28 @@ const app = express();
 
 
 /////Wild Card Error handling
-app.get("/user", (req, res) => {
-    try {
-        throw new Error()
+// app.get("/user", (req, res) => {
+//     try {
+//         throw new Error()
         
-    } catch (error) {
-        res.status(401).send("Catch: Something went Wrong ")
-    }
-})
+//     } catch (error) {
+//         res.status(401).send("Catch: Something went Wrong ")
+//     }
+// })
  
-app.use("/", (err, req, res, next) => {
-    res.status(401).send("something went wrong")
-})
+// app.use("/", (err, req, res, next) => {
+//     res.status(401).send("something went wrong")
+// })
 
 
-app.listen(7777,()=>console.log("Server is running on port 7777"))
+///
+import { connectdb } from './config/database.js';
+
+connectdb()
+    .then(() => {
+        console.log("db connected succesfully")
+        app.listen(7777, () => console.log("Server is running on port 7777"))
+    })
+    .catch((err) => {
+        console.log("db connection failed", err)
+    })
