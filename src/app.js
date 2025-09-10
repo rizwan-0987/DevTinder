@@ -65,17 +65,31 @@ const app = express();
 
 ////multiple routes with same path and / middlewear
 
-app.use("/",(req, res ,next)=> {
-    console.log("handling your request....")
-    next();
-})
-app.get("/user", (req, res, next) => {
-    // res.send("route handle 1")
-    next();
-})
-app.get("/user", (req, res, next) => {
-    res.send("route handle 2")
+// app.use("/",(req, res ,next)=> {
+//     console.log("handling your request....")
+//     next();
+// })
+// app.get("/user", (req, res, next) => {
+//     // res.send("route handle 1")
+//     next();
+// })
+// app.get("/user", (req, res, next) => {
+//     res.send("route handle 2")
+// })
+
+
+///Auth handler for user and admin
+import { authAdmin, authuser } from './middlewear/auth.js';
+
+app.get("/admin/getAllData",authAdmin, (req, res) => {
+    res.send("Here is all data for admin")
 })
 
+app.get("/user/data", authuser, (req, res) => {
+    res.send("username : rizwan")
+})
+app.get("/user/login", (req, res) => {
+    res.send("you are getting login")
+})
 
 app.listen(7777,()=>console.log("Server is running on port 7777"))
