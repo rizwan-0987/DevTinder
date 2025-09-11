@@ -1,6 +1,7 @@
-import express from 'express'
+import express from "express";
 
 const app = express();
+app.use(express.json());
 
 // app.use("/", (req, res,next) => {
 //     console.log("working on /user")
@@ -77,7 +78,6 @@ const app = express();
 //     res.send("route handle 2")
 // })
 
-
 ///Auth handler for user and admin
 // import { authAdmin, authuser } from './middlewear/auth.js';
 
@@ -92,52 +92,110 @@ const app = express();
 //     res.send("you are getting login")
 // })
 
-
-
 /////Wild Card Error handling
 // app.get("/user", (req, res) => {
 //     try {
 //         throw new Error()
-        
+
 //     } catch (error) {
 //         res.status(401).send("Catch: Something went Wrong ")
 //     }
 // })
- 
+
 // app.use("/", (err, req, res, next) => {
 //     res.status(401).send("something went wrong")
 // })
 
-app.post("/signup", async(req, res) => {
-    const userObj = {
-        firstName: "Haad",
-        lastName: "Ahmad",
-        emailId: "haad@gmail.com",
-        password: "12345678",
-        age: 21,
-        gender:"male"
+app.post("/signup", async (req, res) => {
+  const userObj = req.body;
+  const user = new User(userObj);
+  try {
+    await user.save();
+    res.status(201).send("user registered");
+  } catch (error) {
+    res.status(401).send("something went wrong while registering user");
+  }
+});
+
+//find user by email
+app.get("/userEmail", async (req, res) => {
+  try {
+    const data = await User.find({ emailId: req.body.emailId });
+
+    if (data.length === 0) {
+      res.status(404).send("user not found");
+    } else {
+      res.status(200).send(data);
     }
-    const user = new User(userObj)
+  } catch (error) {
+    res.status(401).send("something went wrong");
+  }
+});
+
+// find user by id
+
+app.get("/userid", async (req, res) => {
+  const userid = req.body;
+  try {
+    const user = await User.findById(userid);
+    if (!user) {
+      res.status(404).send("user not found");
+    } else {
+      res.status(200).send(user);
+    }
+  } catch (error) {
+    res.status(401).send("something went wrong");
+  }
+});
+//get all users
+app.get("/feed", async (req, res) => {
+  try {
+    const allUsers = await User.find({});
+    if (!allUsers) {
+      res.status(404).send("user not found");
+    } else {
+      res.status(200).send(allUsers);
+    }
+  } catch (error) {
+    res.status(401).send("something went wrong");
+  }
+});
+//delete user by id
+
+app.delete("/user/delete", async (req, res) => {
+  try {
+    const userid = req.body.userid;
+    const user = await User.findByIdAndDelete(userid);
+    res.status(202).send("user deleted successfully");
+  } catch (error) {
+    res.status(401).send("something went wrong");
+  }
+});
+
+///update user
+
+app.patch("/user/update", async (req, res) => {
+    const userid = req.body._id
+    const newData = req.body
     try {
-        await user.save()
-            res.status(201).send("user registered")
+        const update = await User.findByIdAndUpdate(userid, newData)
+        res.status(203).send("user updated successfully")
     } catch (error) {
-        res.status(401).send("something went wrong while registering user")
+        res.status(401).send("something went wrong");
+
     }
-   
-  
 })
 
 
 ///
-import { connectdb } from './config/database.js';
-import { User } from './models/user.js';
+import { connectdb } from "./config/database.js";
+import { User } from "./models/user.js";
 
 connectdb()
-    .then(() => {
-        console.log("db connected succesfully")
-        app.listen(7777, () => console.log("Server is running on port 7777"))
-    })
-    .catch((err) => {
-        console.log("db connection failed", err)
-    })
+  .then(() => {
+    console.log("db connected succesfully");
+    app.listen(7777, () => console.log("Server is running on port 7777"));
+  })
+  .catch((err) => {
+    console.log("db connection failed");
+  });
