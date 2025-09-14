@@ -105,15 +105,48 @@ app.use(express.json());
 // app.use("/", (err, req, res, next) => {
 //     res.status(401).send("something went wrong")
 // })
+import { signupValidate, loginValidate } from "./utils/validator.js";
+import bcrypt from "bcrypt";
 
 app.post("/signup", async (req, res) => {
-  const userObj = req.body;
-  const user = new User(userObj);
+  const { firstName, lastName, emailId, password } = req.body;
   try {
+    //validating api req
+    signupValidate(req);
+    //pass hashing
+    const passwordHash = await bcrypt.hash(password, 10);
+    //creating new instance
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+    });
+    // saving to db
     await user.save();
     res.status(201).send("user registered");
   } catch (error) {
-    res.status(401).send("something went wrong while registering user");
+    res.status(401).send(error.message);
+  }
+});
+/////////////////////////////////login////////////////////////////////////////////////////////
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+    loginValidate(req);
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("invalid credentials");
+    }
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      throw new Error("invalid credentials");
+    }
+    if (validPassword) {
+      res.send("login successfully");
+    }
+  } catch (error) {
+    res.send(error.message);
   }
 });
 
@@ -144,7 +177,7 @@ app.get("/userid", async (req, res) => {
       res.status(200).send(user);
     }
   } catch (error) {
-    res.status(401).send("something went wrong");
+    res.status(401).send("something went wrong" + error.message);
   }
 });
 //get all users
@@ -172,20 +205,50 @@ app.delete("/user/delete", async (req, res) => {
   }
 });
 
-///update user
+///update user with id
 
-app.patch("/user/update", async (req, res) => {
-    const userid = req.body._id
-    const newData = req.body
-    try {
-        const update = await User.findByIdAndUpdate(userid, newData)
-        res.status(203).send("user updated successfully")
-    } catch (error) {
-        res.status(401).send("something went wrong");
+app.patch("/user/update/:id", async (req, res) => {
+  const userid = req.params.id;
+  const newData = req.body;
+  const ALLOWED_UPDATE = [
+    "firstName",
+    "lastName",
+    "age",
+    "gender",
+    "photoUrl",
+    "about",
+    "skills",
+    "password",
+  ];
 
+  try {
+    const isAllowedUpdate = Object.keys(newData).every((k) =>
+      ALLOWED_UPDATE.includes(k)
+    );
+    console.log(isAllowedUpdate); ///shows resut of isAllowed.
+    if (!isAllowedUpdate) {
+      throw new Error("Update Not Allowed");
     }
-})
+    const update = await User.findByIdAndUpdate(userid, newData, {
+      runValidators: true,
+    });
+    res.status(203).send("user updated successfully");
+  } catch (error) {
+    res.status(401).send(error.message);
+  }
+});
+///update user with email
 
+app.patch("/user/update/email", async (req, res) => {
+  const useremail = req.body.emailId;
+  const newData = req.body;
+  try {
+    const update = await User.findOneAndUpdate({ emailId: useremail }, newData);
+    res.status(203).send("user updated successfully");
+  } catch (error) {
+    res.status(401).send("something went wrong");
+  }
+});
 
 ///
 import { connectdb } from "./config/database.js";
