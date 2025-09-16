@@ -1,112 +1,15 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser())
 
-// app.use("/", (req, res,next) => {
-//     console.log("working on /user")
-//     next();
-// })
-// app.get(`/user`, (req, res) => {
-//     console.log(req.query)
 
-//     res.send({
-//         name: "Rizwan",
-//         age : "24"
-//     })
-// })
-// app.get("/user/:id/:age/:address", (req, res) => {
-//     console.log(req.params)
-
-//     res.send({
-//         name: "Rizwan",
-//         age: "24"
-//     })
-// })
-// app.post("/user",(req, res) => {
-//     res.send("user added in db")
-// })
-// app.put("/user",(req, res) => {
-//     res.send("user updated in db")
-// })
-// app.delete("/user", (req, res) => {
-//     res.send("user deleted")
-// })
-
-////Multiple route handlers
-
-// app.use("/user", (req, res, next) => {
-//     console.log("route handler 1")
-//     next();
-
-//     // res.send("route handler 1")
-// },
-//     (req, res, next) => {
-//         console.log("route handler 2")
-//         // res.send("route handler 2")
-//         next();
-//     },
-//    [ (req, res, next) => {
-//         console.log("route handler 3")
-//         // res.send("route handler 3")
-//         next()
-//     },
-//     (req, res, next) => {
-//         console.log("route handler 4")
-//         // res.send("route handler 4")
-//         next()
-//     }],
-//     (req, res, next) => {
-//         console.log("route handler 5")
-//         // next()
-
-//         res.send("route handler 5")
-//     },
-// )
-
-////multiple routes with same path and / middlewear
-
-// app.use("/",(req, res ,next)=> {
-//     console.log("handling your request....")
-//     next();
-// })
-// app.get("/user", (req, res, next) => {
-//     // res.send("route handle 1")
-//     next();
-// })
-// app.get("/user", (req, res, next) => {
-//     res.send("route handle 2")
-// })
-
-///Auth handler for user and admin
-// import { authAdmin, authuser } from './middlewear/auth.js';
-
-// app.get("/admin/getAllData",authAdmin, (req, res) => {
-//     res.send("Here is all data for admin")
-// })
-
-// app.get("/user/data", authuser, (req, res) => {
-//     res.send("username : rizwan")
-// })
-// app.get("/user/login", (req, res) => {
-//     res.send("you are getting login")
-// })
-
-/////Wild Card Error handling
-// app.get("/user", (req, res) => {
-//     try {
-//         throw new Error()
-
-//     } catch (error) {
-//         res.status(401).send("Catch: Something went Wrong ")
-//     }
-// })
-
-// app.use("/", (err, req, res, next) => {
-//     res.status(401).send("something went wrong")
-// })
 import { signupValidate, loginValidate } from "./utils/validator.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken"
+import { authuser } from "./middlewear/auth.js";
 
 app.post("/signup", async (req, res) => {
   const { firstName, lastName, emailId, password } = req.body;
@@ -138,18 +41,43 @@ app.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("invalid credentials");
     }
-    const validPassword = await bcrypt.compare(password, user.password);
+    const validPassword = bcrypt.compare(password, user.password);
     if (!validPassword) {
       throw new Error("invalid credentials");
     }
     if (validPassword) {
+
+      ///Create JWT token
+      const token = await user.getJWT()
+      //Add token to cookies and response back to user
+      res.cookie("Token", token, { expires: new Date(Date.now() + 8 * 3600000) })
       res.send("login successfully");
     }
   } catch (error) {
     res.send(error.message);
   }
-});
 
+});
+/////////////////////////////////////profile/////////////////////////////////////////////////
+
+app.get("/profile", authuser, async (req, res) => {
+  try {
+    const user = req.user
+    res.send(user)
+  } catch (error) {
+    res.send("Error :" + error.message)
+  }
+})
+///////////////////////////////////////sending friend req //////////////////////////////
+app.get("/request", authuser, async (req, res) => {
+  try {
+    const user = req.user;
+    res.send(user.firstName + " is sending request")
+  } catch (error) {
+    res.send("Error :" + error.message)
+  }
+})
+/////////////////////////////////               ////////////////////////////////////////
 //find user by email
 app.get("/userEmail", async (req, res) => {
   try {
@@ -251,6 +179,10 @@ app.patch("/user/update/email", async (req, res) => {
 });
 
 ///
+
+
+
+
 import { connectdb } from "./config/database.js";
 import { User } from "./models/user.js";
 

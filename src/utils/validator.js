@@ -14,6 +14,9 @@ throw new Error("Enter valid email");
         
     }
 }
+
+
+
 export const loginValidate = (req) => {
     const { emailId, password } = req.body;
      if (emailId == "" || password == "") {
