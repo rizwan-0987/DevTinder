@@ -29,7 +29,7 @@ export const loginValidate = (req) => {
 }
 
 export const validateProfileEdit = (req) => {
-    const allowedEdit = ["firstName", "lastName", "photoUrl", "about", "skills"]
+    const allowedEdit = ["firstName", "lastName", "photoUrl", "about", "skills","gender","age"]
     const isEditAllowed = Object.keys(req.body).every(feild => allowedEdit.includes(feild))
     return isEditAllowed;
 }

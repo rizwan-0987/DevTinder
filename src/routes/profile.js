@@ -19,7 +19,7 @@ profileRouter.get("/profile/view", authuser, async (req, res) => {
 profileRouter.patch("/profile/edit", authuser, async (req, res) => {
   try {
     if (!validateProfileEdit(req)) {
-      throw new Error("Edit not Allowed with these feilds");
+      return res.status(304).send("Edit not Allowed with these feilds");
     }
     const LoggedinUser = req.user;
     Object.keys(req.body).forEach(
@@ -28,11 +28,11 @@ profileRouter.patch("/profile/edit", authuser, async (req, res) => {
 
     await LoggedinUser.save();
     res.json({
-      message: "prfile edit Successfully",
+      message: "profile edit Successfully",
       data: LoggedinUser,
     });
   } catch (error) {
-    res.send("Error : " + error.message);
+    res.status(401).send("Error : " + error.message);
   }
 });
 //-----------------------------update password------------------
