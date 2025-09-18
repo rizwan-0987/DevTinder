@@ -27,3 +27,24 @@ export const loginValidate = (req) => {
           
         }
 }
+
+export const validateProfileEdit = (req) => {
+    const allowedEdit = ["firstName", "lastName", "photoUrl", "about", "skills"]
+    const isEditAllowed = Object.keys(req.body).every(feild => allowedEdit.includes(feild))
+    return isEditAllowed;
+}
+
+
+export const validateUpdatePass = (req) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    
+        if (!currentPassword || !newPassword || !confirmPassword) {
+          throw new Error("All fields are required");
+        }
+        if (newPassword !== confirmPassword) {
+          throw new Error("Passwords do not match");
+        }
+        if (!validator.isStrongPassword(newPassword)) {
+          throw new Error("Password must be ≥8 chars and include lowercase, uppercase, digit, and special character.");
+        }
+}

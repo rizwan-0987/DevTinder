@@ -2,6 +2,7 @@ import express from "express"
 import { signupValidate, loginValidate } from "../utils/validator.js";
 import bcrypt from "bcrypt";
 import { User } from "../models/user.js";
+import { authuser } from "../middlewear/auth.js";
 
 
 export const authRouter = express.Router();
@@ -47,14 +48,18 @@ authRouter.post("/login", async (req, res) => {
       const token = await user.getJWT()
       //Add token to cookies and response back to user
       res.cookie("Token", token, { expires: new Date(Date.now() + 8 * 3600000) })
-      res.send("login successfully");
+      res.json(user);
     }
   } catch (error) {
-    res.send(error.message);
+    res.status(401).send(error.message);
   }
 
 });
-
+//-----------------------------logout user-----------------------
+authRouter.post("/logout",authuser, (req, res) => {
+    res.cookie("Token", null, { expires: new Date(Date.now()) })
+    res.send("User Logged Out")
+})
 
 
 

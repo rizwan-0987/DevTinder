@@ -5,12 +5,12 @@ export const authuser = async (req, res, next) => {
     try {
         const { Token } = req.cookies;
         if (!Token) {
-            throw new Error("Token not valid!!!!!!!!!");
+            return res.status(401).send("please Login");
+           
             
             
         }
         const decodedMsg =  jwt.verify(Token, "1234")
-            console.log(decodedMsg)
             const { id } = decodedMsg;
         
             const user =await User.findById(id)
